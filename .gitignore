@@ -1,0 +1,6 @@
+.DS_Store
+LUFA/
+obj/
+build/
+script/
+.swp
