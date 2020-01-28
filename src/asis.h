@@ -4,6 +4,20 @@
 #ifndef _ASIS_H_
 #define _ASIS_H_
 
+#include <avr/io.h>
+#include <avr/wdt.h>
+#include <avr/power.h>
+#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+#include <string.h>
+
+#include <LUFA/Drivers/USB/USB.h>
+#include <LUFA/Drivers/Board/Joystick.h>
+#include <LUFA/Drivers/Board/LEDs.h>
+#include <LUFA/Drivers/Board/Buttons.h>
+#include <LUFA/Platform/Platform.h>
+
+
 //Buttons
 #define ASIS_BUTTON_NOTHING 0x0000
 #define ASIS_BUTTON_Y       0x0001
@@ -69,15 +83,13 @@ typedef struct{
 
 /* System functions. Script Users should not call these */
 //Initialize ASIS
-void asis_sys_init();
+void asis_sys_init(void);
 //Called each cycle
 void asis_sys_cycle(asis_packet_t*);
-//Load an instruction at the current index and increment index
-void asis_sys_add_insn(asis_insn_t*);
 //Main
-void asis_sys_main();
+void asis_sys_main(void);
 //Prepare for execution after loading main
-void asis_sys_prepare();
+void asis_sys_prepare(void);
 
 /* User function.*/
 //Load a button instruction (button, duration)
@@ -89,7 +101,7 @@ void asis_d_pad(uint16_t,uint16_t);
 //Load a wait instruction (duration)
 void asis_wait(uint16_t);
 //Get current instruction index
-uint16_t asis_current();
+uint16_t asis_current(void);
 //Load a loop (repeat) instruction (location, repeat_time)
 void asis_repeat(uint16_t,uint16_t);
 //Load a jump instruction
@@ -99,6 +111,6 @@ uint16_t asis_function(void func());
 //Load a function call instruction
 void asis_call(uint16_t);
 //Load an exit instruction
-void asis_exit();
+void asis_exit(void);
 
 #endif

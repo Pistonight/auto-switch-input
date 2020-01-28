@@ -98,6 +98,7 @@ typedef struct {
 
 // The output is structured as a mirror of the input.
 // This is based on initial observations of the Pokken Controller.
+/*
 typedef struct {
 	uint16_t Button; // 16 buttons; see JoystickButtons_t for bit mapping
 	uint8_t  HAT;    // HAT switch; one nibble w/ unused nibble
@@ -106,6 +107,7 @@ typedef struct {
 	uint8_t  RX;     // Right Stick X
 	uint8_t  RY;     // Right Stick Y
 } USB_JoystickReport_Output_t;
+*/
 
 // Function Prototypes
 // Setup all necessary hardware, including USB initialization.

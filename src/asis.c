@@ -19,7 +19,7 @@ uint16_t asis_sp;
 uint16_t asis_dc;
 
 //Initialize
-void asis_sys_init(){
+void asis_sys_init(void){
   asis_pc = 0;
   asis_lc = 0;
   asis_sp = 0;
@@ -38,7 +38,7 @@ void asis_sys_set_pc(uint16_t new_pc){
   }
 }
 
-void asis_sys_prepare(){
+void asis_sys_prepare(void){
   asis_sys_set_pc(0);
 }
 //Cycle
@@ -172,7 +172,7 @@ void asis_wait(uint16_t duration){
   asis_lc++;
 }
 
-uint16_t asis_current(){
+uint16_t asis_current(void){
   return asis_lc;
 }
 
@@ -191,7 +191,7 @@ void asis_repeat(uint16_t jump_target,uint16_t repeat_time){
 uint16_t asis_function(void function()){
   uint16_t function_location = asis_lc + 1;
   asis_insn_t* insn;
-  if(asis_lc>=ASIS_MAX_INSTRUCTION-2)return;
+  if(asis_lc>=ASIS_MAX_INSTRUCTION-2)return 0;
   asis_lc++;
   function();//Loads the function into memory
   //return instruction
@@ -224,7 +224,7 @@ void asis_call(uint16_t jump_target){
   asis_lc++;
 }
 
-void asis_jump(uint16_t){
+void asis_jump(uint16_t jump_target){
   asis_insn_t* insn;
   if(asis_lc>=ASIS_MAX_INSTRUCTION)return;
   insn = asis_memory + asis_lc;
@@ -235,7 +235,7 @@ void asis_jump(uint16_t){
   insn->arg2      = 0;
   asis_lc++;
 }
-void asis_exit(){
+void asis_exit(void){
   asis_insn_t* insn;
   if(asis_lc>=ASIS_MAX_INSTRUCTION)return;
   insn = asis_memory + asis_lc;

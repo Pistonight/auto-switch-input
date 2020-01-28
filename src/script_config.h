@@ -5,9 +5,9 @@
 /*Script Config Section*/
 
 //Buffer size for instruction array
-#define ASIS_MAX_INSTRUCTION 2000
+#define ASIS_MAX_INSTRUCTION 200
 //Stack size (maximum nested call)
-#define ASIS_MAX_STACK 100
+#define ASIS_MAX_STACK 8
 
 /*Script Config Section*/
 #endif

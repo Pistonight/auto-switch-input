@@ -17,20 +17,22 @@ Controller. However, by default most of the descriptors are there, with the
 exception of Home and Capture. Descriptor modification allows us to unlock
 these buttons for our use.
 */
+#include "asis.h"
 #include "Command.c"
 #include "Joystick.h"
 
-
-
-
-
 // Main entry point.
 int main(void) {
-	// We'll start by performing hardware and peripheral setup.
+  //Initialize ASIS
+  asis_sys_init();
+  //Call the global script setup
+  //asis_sys_main();
+  //Prepare ASIS to run
+  asis_sys_prepare();
+  
+  // Hardware and peripheral setup, enable interrupt
 	SetupHardware();
-	// We'll then enable global interrupts for our use.
 	GlobalInterruptEnable();
-	// Once that's done, we'll enter an infinite loop.
 	for (;;)
 	{
 		// We need to run our task to process and deliver data for our IN and OUT endpoints.
@@ -49,18 +51,11 @@ void SetupHardware(void) {
 	// We need to disable clock division before initializing the USB hardware.
 	clock_prescale_set(clock_div_1);
 	// We can then initialize our hardware and peripherals, including the USB stack.
-
-	#ifdef ALERT_WHEN_DONE
-	// Both PORTD and PORTB will be used for the optional LED flashing and buzzer.
-	#warning LED and Buzzer functionality enabled. All pins on both PORTB and \
-PORTD will toggle when printing is done.
-	DDRD  = 0xFF; //Teensy uses PORTD
+DDRD  = 0xFF; //Teensy uses PORTD
 	PORTD =  0x0;
                   //We'll just flash all pins on both ports since the UNO R3
 	DDRB  = 0xFF; //uses PORTB. Micro can use either or, but both give us 2 LEDs
-	PORTB =  0x0; //The ATmega328P on the UNO will be resetting, so unplug it?
-	#endif
-	// The USB stack should be initialized last.
+	PORTB =  0x0; //The ATmega328P on the UNO will be resetting, so unplug it?	// The USB stack should be initialized last.
 	USB_Init();
 }
 
@@ -88,7 +83,6 @@ void EVENT_USB_Device_ConfigurationChanged(void) {
 // Process control requests sent to the device from the USB host.
 void EVENT_USB_Device_ControlRequest(void) {
 	// We can handle two control requests: a GetReport and a SetReport.
-
 	// Not used here, it looks like we don't receive control request from the Switch.
 }
 
@@ -103,18 +97,7 @@ void HID_Task(void) {
 	// We'll check to see if we received something on the OUT endpoint.
 	if (Endpoint_IsOUTReceived())
 	{
-		// If we did, and the packet has data, we'll react to it.
-		if (Endpoint_IsReadWriteAllowed())
-		{
-			// We'll create a place to store our data received from the host.
-			USB_JoystickReport_Output_t JoystickOutputData;
-			// We'll then take in that data, setting it up in our storage.
-			while(Endpoint_Read_Stream_LE(&JoystickOutputData, sizeof(JoystickOutputData), NULL) != ENDPOINT_RWSTREAM_NoError);
-			// At this point, we can react to this data.
-
-			// However, since we're not doing anything with this data, we abandon it.
-		}
-		// Regardless of whether we reacted to the data, we acknowledge an OUT packet on this endpoint.
+    //We will simple clear the out point, ignoring the packet
 		Endpoint_ClearOUT();
 	}
 
@@ -133,17 +116,15 @@ void HID_Task(void) {
 		Endpoint_ClearIN();
 	}
 }
-
 typedef enum {
-	SYNC_CONTROLLER,
-	SYNC_POSITION,
-	BREATHE,
+	//SYNC_CONTROLLER,
+	//SYNC_POSITION,
+	//BREATHE,
 	PROCESS,
-	CLEANUP,
+//	CLEANUP,
 	DONE
 } State_t;
-State_t state = SYNC_CONTROLLER;
-
+State_t state = PROCESS;
 #define ECHOES 2
 int echoes = 0;
 USB_JoystickReport_Input_t last_report;
@@ -175,12 +156,12 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 	}
 
 	// States and moves management
-	switch (state)
-	{
+//	switch (state)
+//	{
 
-		case SYNC_CONTROLLER:
-			state = BREATHE;
-			break;
+//		case SYNC_CONTROLLER:
+//			state = PROCESS;
+//			break;
 
 		// case SYNC_CONTROLLER:
 		// 	if (report_count > 550)
@@ -208,8 +189,8 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 		// 	report_count++;
 		// 	break;
 
-		case SYNC_POSITION:
-			bufindex = 0;
+//		case SYNC_POSITION:
+/*			bufindex = 0;
 
 
 			ReportData->Button = 0;
@@ -220,15 +201,15 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 			ReportData->HAT = HAT_CENTER;
 
 
-			state = BREATHE;
-			break;
-
-		case BREATHE:
 			state = PROCESS;
 			break;
+*/
+		//case BREATHE:
+			//state = PROCESS;
+			//break;
 
-		case PROCESS:
-
+//		case PROCESS:
+if(state==PROCESS){
 			switch (step[bufindex].button)
 			{
 
@@ -295,7 +276,7 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 				bufindex = 7;
 				duration_count = 0;
 
-				state = BREATHE;
+				state = PROCESS;
 
 				ReportData->LX = STICK_CENTER;
 				ReportData->LY = STICK_CENTER;
@@ -304,27 +285,28 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 				ReportData->HAT = HAT_CENTER;
 
 
-				// state = DONE;
+				 state = DONE;
 //				state = BREATHE;
 
 			}
+}
+//			break;
 
-			break;
-
-		case CLEANUP:
-			state = DONE;
-			break;
-
-		case DONE:
-			#ifdef ALERT_WHEN_DONE
+//		case CLEANUP:
+//			state = DONE;
+//			break;
+	//	case DONE:
+	//		#ifdef ALERT_WHEN_DONE
+  if(state == DONE){
 			portsval = ~portsval;
 			PORTD = portsval; //flash LED(s) and sound buzzer if attached
 			PORTB = portsval;
 			_delay_ms(250);
-			#endif
-			return;
-	}
-
+      return;
+  }
+	//		#endif
+	//		return;
+	//}
 	// // Inking
 	// if (state != SYNC_CONTROLLER && state != SYNC_POSITION)
 	// 	if (pgm_read_byte(&(image_data[(xpos / 8) + (ypos * 40)])) & 1 << (xpos % 8))
