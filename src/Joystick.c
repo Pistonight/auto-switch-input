@@ -22,40 +22,64 @@ these buttons for our use.
 #include "Joystick.h"
 
 #define ECHOES 2
+#define LED_PORT 0x40 //Teensy2.0 uses PD6
 bool asis_done = false;
-int led = 0;
+bool asis_overflow = false;
 int echoes = 0;
 uint16_t asis_wc = 0;
 USB_JoystickReport_Input_t last_report;
 asis_packet_t packet;
+
+void set_led(int on){
+  PORTD = on ? LED_PORT : 0;
+}
 // Main entry point.
 int main(void) {
   // Hardware and peripheral setup, enable interrupt
 	SetupHardware();
 	GlobalInterruptEnable();
   
-  //Turn on LED to indicate ASIS loading
-  //asis_sys_led(1);
   //Initialize ASIS
   asis_sys_init();
   //Call the global script setup
-  //asis_sys_main();
-  //Load some instructions
-  asis_wait_s(1);
-  asis_click(ASIS_BUTTON_L + ASIS_BUTTON_R);
-  asis_wait_ms(20);
-  asis_click(ASIS_BUTTON_L + ASIS_BUTTON_R);
-  asis_wait_s(10);
-  asis_click(ASIS_BUTTON_A);
-  
-
+  asis_sys_main();
   //Prepare ASIS to run
   asis_sys_prepare();
-  //Loading finished
-  //asis_sys_led(0);
-  
+  //Check compile time overflow
+  asis_sys_ovfl(&asis_overflow);
+  if(asis_overflow){
+    //We indicate a compile time overflow by flashing LED twice
+    while(1){
+      set_led(1);
+      _delay_ms(100);
+      set_led(0);
+      _delay_ms(100);
+      set_led(1);
+      _delay_ms(100);
+      set_led(0);
+      _delay_ms(1000);
+    }
+  }
 	while (1)
 	{
+    if(asis_overflow){
+      //We indicate a run time overflow by flashing LED 3 times
+      while(1){
+        set_led(1);
+        _delay_ms(100);
+        set_led(0);
+        _delay_ms(100);
+        set_led(1);
+        _delay_ms(100);
+        set_led(0);
+        _delay_ms(100);
+        set_led(1);
+        _delay_ms(1000);
+        set_led(0);
+        _delay_ms(1000);
+      }
+    }
+    
 		// We need to run our task to process and deliver data for our IN and OUT endpoints.
 		HID_Task();
 		// We also need to run the main USB management task.
@@ -74,9 +98,8 @@ void SetupHardware(void) {
 	clock_prescale_set(clock_div_1);
 	// We can then initialize our hardware and peripherals, including the USB stack.
   // LED Setup
-  DDRD  = 0xFF; //Teensy uses PORTD
-	PORTD =  0x0;
-  led = 0;
+  DDRD  = LED_PORT;
+  set_led(0);
 
 	USB_Init();
 }
@@ -110,8 +133,6 @@ void EVENT_USB_Device_ControlRequest(void) {
 
 // Process and deliver data from IN and OUT endpoints.
 void HID_Task(void) {
-  //Update LED status
-  PORTD = led;
 	// If the device isn't connected and properly configured, we can't do anything here.
 	if (USB_DeviceState != DEVICE_STATE_Configured)
 		return;
@@ -126,8 +147,8 @@ void HID_Task(void) {
 	// We'll then move on to the IN endpoint.
 	Endpoint_SelectEndpoint(JOYSTICK_IN_EPADDR);
   // ASIS wait implemented here, so we are not busy waiting
-	if(asis_wc>0){
-    led = ~led;
+  if(asis_wc>0){
+    PORTD = ~PORTD;//Flash LED regularly to indicate we are waiting
     if(asis_wc<ASIS_WAIT_PERIOD){
       _delay_ms(ASIS_WAIT_PERIOD);
       asis_wc = 0;
@@ -150,13 +171,11 @@ void HID_Task(void) {
 	}
 
   //If we are done, perform LED blinking task to indicate
-  if(asis_done){
-    if(led){
-      _delay_ms(250);
-    }else{
-      _delay_ms(3000);
-    }
-    led = ~led;
+  if(asis_done && !asis_overflow){
+    set_led(1);
+    _delay_ms(250);
+    set_led(0);
+    _delay_ms(3000);
   }
 
 }
@@ -174,6 +193,11 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 
   // Let ASIS fill the packet
   asis_sys_cycle(&packet);
+  //Overflow protection
+  asis_sys_ovfl(&asis_overflow);
+  if(asis_overflow){
+    return;
+  }
 
   if(packet.exit){
     asis_wc = 0;

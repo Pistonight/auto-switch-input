@@ -91,6 +91,8 @@ void asis_sys_cycle(asis_packet_t*);
 void asis_sys_main(void);
 //Prepare for execution after loading main
 void asis_sys_prepare(void);
+//Overflow detection
+void asis_sys_ovfl(bool*);
 
 /* User function.*/
 //Load a button click (duration defined in config)
