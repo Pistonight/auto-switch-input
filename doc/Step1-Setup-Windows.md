@@ -1,5 +1,4 @@
 # Setup Instruction for Windows
-*Note: These steps are not proven to work because my teensy 2.0++ hasn't arrived yet*
 
 ## Getting Started
 Here are the tools you will need. You will find download links below in each section
@@ -24,4 +23,4 @@ Download [GNU Make Setup](http://gnuwin32.sourceforge.net/packages/make.htm) and
 If you open the shell in the root directory of the repo and type 'make', you should be able to build the project.
 
 ## Next Step
-*To be completed*
+Please refer to the next section in README

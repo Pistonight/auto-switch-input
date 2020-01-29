@@ -25,4 +25,4 @@ This also includes useful stuff like `gcc` that you may or may not need :)
 Now you can verify that you got everything by running `make` in the project root directory.
 
 ## Next Step
-*To be completed*
+Please refer to the next section in README
