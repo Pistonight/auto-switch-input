@@ -1,5 +1,4 @@
 # Setup Instruction for Linux
-*Note: These steps are not proven to work because my teensy 2.0++ hasn't arrived yet*
 
 ## Getting Started
 Here are the tools you will need. You will find download links below
@@ -20,9 +19,9 @@ If you don't, you can install the build-essential package with
 
 	sudo apt-get install build-essential
 
-This also includes useful stuff like `gcc` that you may or may not need :)
+This also includes useful stuff like `gcc` that you may or may not need in the future :)
 
 Now you can verify that you got everything by running `make` in the project root directory.
 
 ## Next Step
-Please refer to the next section in README
+Please refer to the next section in [README](../README.md)

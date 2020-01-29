@@ -23,4 +23,4 @@ Download [GNU Make Setup](http://gnuwin32.sourceforge.net/packages/make.htm) and
 If you open the shell in the root directory of the repo and type 'make', you should be able to build the project.
 
 ## Next Step
-Please refer to the next section in README
+Please refer to the next section in [README](../README.md)
