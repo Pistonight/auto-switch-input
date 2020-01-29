@@ -78,6 +78,7 @@ typedef struct{
   uint8_t hat;
   uint16_t stick_x;//upper for L stick, lower for R stick
   uint16_t stick_y;
+  uint16_t wait;
   bool exit;
 } asis_packet_t;
 
@@ -90,16 +91,22 @@ void asis_sys_cycle(asis_packet_t*);
 void asis_sys_main(void);
 //Prepare for execution after loading main
 void asis_sys_prepare(void);
+//Change the LED status (true = on, false = off)
+void asis_sys_led(bool);
 
 /* User function.*/
+//Load a button click (duration defined in config)
+void asis_click(uint16_t);
 //Load a button instruction (button, duration)
 void asis_button(uint16_t, uint16_t);
 //Load a stick instruction (x,y,duration)
 void asis_stick(uint16_t,uint16_t,uint16_t);
 //Load a d-pad instruction (hat,duration)
 void asis_d_pad(uint16_t,uint16_t);
-//Load a wait instruction (duration)
+//Load a wait instruction (duration in second)
 void asis_wait(uint16_t);
+//Load a wait instruction (repeat, duration)
+void asis_wait_ms(uint16_t,uint16_t);
 //Get current instruction index
 uint16_t asis_current(void);
 //Load a loop (repeat) instruction (location, repeat_time)
@@ -107,7 +114,7 @@ void asis_repeat(uint16_t,uint16_t);
 //Load a jump instruction
 void asis_jump(uint16_t);
 //Load a function
-uint16_t asis_function(void func());
+uint16_t asis_function(void (*func)(void));
 //Load a function call instruction
 void asis_call(uint16_t);
 //Load an exit instruction

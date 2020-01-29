@@ -90,6 +90,7 @@ void asis_sys_cycle(asis_packet_t* packet){
       packet->hat     = ASIS_D_PAD_CENTER;
       packet->stick_x = ASIS_STICK_CENTER;
       packet->stick_y = ASIS_STICK_CENTER;
+      packet->wait    = 0;
       packet->exit    = false;
       break;
     case ASIS_INSN_STICK:
@@ -97,6 +98,7 @@ void asis_sys_cycle(asis_packet_t* packet){
       packet->hat     = ASIS_D_PAD_CENTER;
       packet->stick_x = insn->arg1;
       packet->stick_y = insn->arg2;
+      packet->wait    = 0;
       packet->exit    = false;
       break;
     case ASIS_INSN_D_PAD:
@@ -104,6 +106,7 @@ void asis_sys_cycle(asis_packet_t* packet){
       packet->hat     = insn->button;
       packet->stick_x = ASIS_STICK_CENTER;
       packet->stick_y = ASIS_STICK_CENTER;
+      packet->wait    = 0;
       packet->exit    = false;
       break;
     case ASIS_INSN_NOP:
@@ -111,6 +114,7 @@ void asis_sys_cycle(asis_packet_t* packet){
       packet->hat     = ASIS_D_PAD_CENTER;
       packet->stick_x = ASIS_STICK_CENTER;
       packet->stick_y = ASIS_STICK_CENTER;
+      packet->wait    = insn->arg1;
       packet->exit    = false;
       break;
     case ASIS_INSN_EXIT:
@@ -125,6 +129,9 @@ void asis_sys_cycle(asis_packet_t* packet){
   }
 }
 
+void asis_click(uint16_t button){
+  asis_button(button,ASIS_BUTTON_DURATION);
+}
 
 void asis_button(uint16_t button,uint16_t duration){
   if(asis_lc>=ASIS_MAX_INSTRUCTION)return;
@@ -160,14 +167,22 @@ void asis_d_pad(uint16_t dpad,uint16_t duration){
   asis_lc++;
 }
 
-void asis_wait(uint16_t duration){
+void asis_wait(uint16_t second){
+  if(second>1000){
+    asis_wait_ms(1000,second);
+  }else{
+    asis_wait_ms(second,1000);
+  }
+}
+
+void asis_wait_ms(uint16_t repeat,uint16_t ms_each_time){
   asis_insn_t* insn;
   if(asis_lc>=ASIS_MAX_INSTRUCTION)return;
   insn = asis_memory + asis_lc;
   insn->operation = ASIS_INSN_NOP;
-  insn->duration  = duration;
+  insn->duration  = repeat;//How many times to execute the wait
   insn->button    = 0;
-  insn->arg1      = 0;//Not Used
+  insn->arg1      = ms_each_time;//How long to wait each time
   insn->arg2      = 0;//Not Used
   asis_lc++;
 }
@@ -188,12 +203,12 @@ void asis_repeat(uint16_t jump_target,uint16_t repeat_time){
   asis_lc++;
 }
 
-uint16_t asis_function(void function()){
+uint16_t asis_function(void (*function)(void)){
   uint16_t function_location = asis_lc + 1;
   asis_insn_t* insn;
   if(asis_lc>=ASIS_MAX_INSTRUCTION-2)return 0;
   asis_lc++;
-  function();//Loads the function into memory
+  function();
   //return instruction
   insn = asis_memory + asis_lc;
   insn->operation = ASIS_INSN_RET;
@@ -202,6 +217,7 @@ uint16_t asis_function(void function()){
   insn->arg1      = 0;
   insn->arg2      = 0;
   asis_lc++;
+  if(asis_lc>=ASIS_MAX_INSTRUCTION)return 0;
   //put a jump instruction at top
   insn = asis_memory + function_location - 1;
   insn->operation = ASIS_INSN_REPEAT;

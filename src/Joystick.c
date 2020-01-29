@@ -17,22 +17,26 @@ Controller. However, by default most of the descriptors are there, with the
 exception of Home and Capture. Descriptor modification allows us to unlock
 these buttons for our use.
 */
-#include "asis.h"
+//#include "asis.h"
 #include "Command.c"
 #include "Joystick.h"
 
 // Main entry point.
 int main(void) {
-  //Initialize ASIS
-  asis_sys_init();
-  //Call the global script setup
-  //asis_sys_main();
-  //Prepare ASIS to run
-  asis_sys_prepare();
-  
   // Hardware and peripheral setup, enable interrupt
 	SetupHardware();
 	GlobalInterruptEnable();
+  //Turn on LED to indicate ASIS loading
+ // asis_sys_led(true);
+  //Initialize ASIS
+  //asis_sys_init();
+  //Call the global script setup
+  //asis_sys_main();
+  //Prepare ASIS to run
+  //asis_sys_prepare();
+  //Loading finished
+  //asis_sys_led(false);
+  
 	for (;;)
 	{
 		// We need to run our task to process and deliver data for our IN and OUT endpoints.
@@ -41,6 +45,10 @@ int main(void) {
 		USB_USBTask();
 	}
 }
+
+//void asis_sys_led(bool on){
+ // PORTD = on;
+//}
 
 // Configures hardware and peripherals, such as the USB peripherals.
 void SetupHardware(void) {
@@ -51,17 +59,17 @@ void SetupHardware(void) {
 	// We need to disable clock division before initializing the USB hardware.
 	clock_prescale_set(clock_div_1);
 	// We can then initialize our hardware and peripherals, including the USB stack.
-DDRD  = 0xFF; //Teensy uses PORTD
+  // LED Setup
+  DDRD  = 0xFF; //Teensy uses PORTD
 	PORTD =  0x0;
-                  //We'll just flash all pins on both ports since the UNO R3
-	DDRB  = 0xFF; //uses PORTB. Micro can use either or, but both give us 2 LEDs
-	PORTB =  0x0; //The ATmega328P on the UNO will be resetting, so unplug it?	// The USB stack should be initialized last.
+
 	USB_Init();
 }
 
 // Fired to indicate that the device is enumerating.
 void EVENT_USB_Device_Connect(void) {
 	// We can indicate that we're enumerating here (via status LEDs, sound, etc.).
+  // Flash LED 3 times
 }
 
 // Fired to indicate that the device is no longer connected to a host.
@@ -138,6 +146,8 @@ int portsval = 0;
 
 // Prepare the next report for the host.
 void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
+ // portsval = ~portsval;
+ // PORTD = portsval;//Testing flashing frequency
 
 	// Prepare an empty report
 	memset(ReportData, 0, sizeof(USB_JoystickReport_Input_t));
