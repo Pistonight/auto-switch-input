@@ -51,7 +51,7 @@
 #include <LUFA/Platform/Platform.h>
 
 #include "Descriptors.h"
-
+/*
 // Type Defines
 // Enumeration for joystick buttons.
 typedef enum {
@@ -84,7 +84,7 @@ typedef enum {
 #define STICK_MIN      0
 #define STICK_CENTER 128
 #define STICK_MAX    255
-
+*/
 // Joystick HID report structure. We have an input and an output.
 typedef struct {
 	uint16_t Button; // 16 buttons; see JoystickButtons_t for bit mapping

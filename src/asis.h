@@ -91,8 +91,6 @@ void asis_sys_cycle(asis_packet_t*);
 void asis_sys_main(void);
 //Prepare for execution after loading main
 void asis_sys_prepare(void);
-//Change the LED status (true = on, false = off)
-void asis_sys_led(bool);
 
 /* User function.*/
 //Load a button click (duration defined in config)

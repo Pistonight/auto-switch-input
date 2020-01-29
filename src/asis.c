@@ -82,6 +82,7 @@ void asis_sys_cycle(asis_packet_t* packet){
         break;
     }
   }
+  insn = asis_memory + asis_pc;
 
   //Handle actual instructions
   switch(insn->operation){

@@ -17,27 +17,46 @@ Controller. However, by default most of the descriptors are there, with the
 exception of Home and Capture. Descriptor modification allows us to unlock
 these buttons for our use.
 */
-//#include "asis.h"
+#include "asis.h"
 #include "Command.c"
 #include "Joystick.h"
 
+#define ECHOES 2
+#define ASIS_WAIT_PERIOD 1000
+bool asis_done = false;
+int led = 0;
+int echoes = 0;
+uint16_t asis_wc = 0;
+USB_JoystickReport_Input_t last_report;
+asis_packet_t packet;
 // Main entry point.
 int main(void) {
   // Hardware and peripheral setup, enable interrupt
 	SetupHardware();
 	GlobalInterruptEnable();
+  
   //Turn on LED to indicate ASIS loading
- // asis_sys_led(true);
+  //asis_sys_led(1);
   //Initialize ASIS
-  //asis_sys_init();
+  asis_sys_init();
   //Call the global script setup
   //asis_sys_main();
-  //Prepare ASIS to run
-  //asis_sys_prepare();
-  //Loading finished
-  //asis_sys_led(false);
+  //Load some instructions
+  asis_click(ASIS_BUTTON_L + ASIS_BUTTON_R);
+  asis_wait(1);
+  asis_click(ASIS_BUTTON_L + ASIS_BUTTON_R);
+  asis_wait(2);
+  asis_click(ASIS_BUTTON_A);
+  asis_wait(3);
+  asis_exit();
   
-	for (;;)
+
+  //Prepare ASIS to run
+  asis_sys_prepare();
+  //Loading finished
+  //asis_sys_led(0);
+  
+	while (1)
 	{
 		// We need to run our task to process and deliver data for our IN and OUT endpoints.
 		HID_Task();
@@ -46,9 +65,6 @@ int main(void) {
 	}
 }
 
-//void asis_sys_led(bool on){
- // PORTD = on;
-//}
 
 // Configures hardware and peripherals, such as the USB peripherals.
 void SetupHardware(void) {
@@ -62,6 +78,7 @@ void SetupHardware(void) {
   // LED Setup
   DDRD  = 0xFF; //Teensy uses PORTD
 	PORTD =  0x0;
+  led = 0;
 
 	USB_Init();
 }
@@ -69,7 +86,6 @@ void SetupHardware(void) {
 // Fired to indicate that the device is enumerating.
 void EVENT_USB_Device_Connect(void) {
 	// We can indicate that we're enumerating here (via status LEDs, sound, etc.).
-  // Flash LED 3 times
 }
 
 // Fired to indicate that the device is no longer connected to a host.
@@ -96,66 +112,62 @@ void EVENT_USB_Device_ControlRequest(void) {
 
 // Process and deliver data from IN and OUT endpoints.
 void HID_Task(void) {
+  //Update LED status
+  if(asis_wc>0){
+    led = 1;//USE LED to indicate waiting
+  }
+  PORTD = led;
 	// If the device isn't connected and properly configured, we can't do anything here.
 	if (USB_DeviceState != DEVICE_STATE_Configured)
 		return;
 
-	// We'll start with the OUT endpoint.
+  // Clear the out endpoint because we don't need it
 	Endpoint_SelectEndpoint(JOYSTICK_OUT_EPADDR);
-	// We'll check to see if we received something on the OUT endpoint.
 	if (Endpoint_IsOUTReceived())
 	{
-    //We will simple clear the out point, ignoring the packet
 		Endpoint_ClearOUT();
 	}
 
 	// We'll then move on to the IN endpoint.
 	Endpoint_SelectEndpoint(JOYSTICK_IN_EPADDR);
-	// We first check to see if the host is ready to accept data.
-	if (Endpoint_IsINReady())
-	{
-		// We'll create an empty report.
-		USB_JoystickReport_Input_t JoystickInputData;
-		// We'll then populate this report with what we want to send to the host.
-		GetNextReport(&JoystickInputData);
-		// Once populated, we can output this data to the host. We do this by first writing the data to the control stream.
-		while(Endpoint_Write_Stream_LE(&JoystickInputData, sizeof(JoystickInputData), NULL) != ENDPOINT_RWSTREAM_NoError);
-		// We then send an IN packet on this endpoint.
+  // ASIS wait implemented here, so we are not busy waiting
+	if(asis_wc>0){
+    if(asis_wc<ASIS_WAIT_PERIOD){
+      _delay_ms(ASIS_WAIT_PERIOD);
+      asis_wc = 0;
+    }else{
+      _delay_ms(ASIS_WAIT_PERIOD);
+      asis_wc -= ASIS_WAIT_PERIOD;
+    }
+    led = 0;
+  }
+
+  if (Endpoint_IsINReady()) {//If we are not waiting, send data
+    if(!asis_done){
+      // Create next report
+		  USB_JoystickReport_Input_t JoystickInputData;
+      GetNextReport(&JoystickInputData);
+      // Write the report to the endpoint
+      while(Endpoint_Write_Stream_LE(&JoystickInputData, sizeof(JoystickInputData), NULL) != ENDPOINT_RWSTREAM_NoError);
+    }
+    //Regardless of a report was sent or not, clear the in endpoint
 		Endpoint_ClearIN();
 	}
-}
-typedef enum {
-	//SYNC_CONTROLLER,
-	//SYNC_POSITION,
-	//BREATHE,
-	PROCESS,
-//	CLEANUP,
-	DONE
-} State_t;
-State_t state = PROCESS;
-#define ECHOES 2
-int echoes = 0;
-USB_JoystickReport_Input_t last_report;
 
-int report_count = 0;
-int xpos = 0;
-int ypos = 0;
-int bufindex = 0;
-int duration_count = 0;
-int portsval = 0;
+  //If we are done, perform LED blinking task to indicate
+  if(asis_done){
+    if(led){
+      _delay_ms(250);
+    }else{
+      _delay_ms(3000);
+    }
+    led = ~led;
+  }
+
+}
 
 // Prepare the next report for the host.
 void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
- // portsval = ~portsval;
- // PORTD = portsval;//Testing flashing frequency
-
-	// Prepare an empty report
-	memset(ReportData, 0, sizeof(USB_JoystickReport_Input_t));
-	ReportData->LX = STICK_CENTER;
-	ReportData->LY = STICK_CENTER;
-	ReportData->RX = STICK_CENTER;
-	ReportData->RY = STICK_CENTER;
-	ReportData->HAT = HAT_CENTER;
 
 	// Repeat ECHOES times the last report
 	if (echoes > 0)
@@ -165,162 +177,25 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 		return;
 	}
 
-	// States and moves management
-//	switch (state)
-//	{
+  // Let ASIS fill the packet
+  asis_sys_cycle(&packet);
 
-//		case SYNC_CONTROLLER:
-//			state = PROCESS;
-//			break;
-
-		// case SYNC_CONTROLLER:
-		// 	if (report_count > 550)
-		// 	{
-		// 		report_count = 0;
-		// 		state = SYNC_POSITION;
-		// 	}
-		// 	else if (report_count == 250 || report_count == 300 || report_count == 325)
-		// 	{
-		// 		ReportData->Button |= SWITCH_L | SWITCH_R;
-		// 	}
-		// 	else if (report_count == 350 || report_count == 375 || report_count == 400)
-		// 	{
-		// 		ReportData->Button |= SWITCH_A;
-		// 	}
-		// 	else
-		// 	{
-		// 		ReportData->Button = 0;
-		// 		ReportData->LX = STICK_CENTER;
-		// 		ReportData->LY = STICK_CENTER;
-		// 		ReportData->RX = STICK_CENTER;
-		// 		ReportData->RY = STICK_CENTER;
-		// 		ReportData->HAT = HAT_CENTER;
-		// 	}
-		// 	report_count++;
-		// 	break;
-
-//		case SYNC_POSITION:
-/*			bufindex = 0;
-
-
-			ReportData->Button = 0;
-			ReportData->LX = STICK_CENTER;
-			ReportData->LY = STICK_CENTER;
-			ReportData->RX = STICK_CENTER;
-			ReportData->RY = STICK_CENTER;
-			ReportData->HAT = HAT_CENTER;
-
-
-			state = PROCESS;
-			break;
-*/
-		//case BREATHE:
-			//state = PROCESS;
-			//break;
-
-//		case PROCESS:
-if(state==PROCESS){
-			switch (step[bufindex].button)
-			{
-
-				case UP:
-					ReportData->LY = STICK_MIN;				
-					break;
-
-				case LEFT:
-					ReportData->LX = STICK_MIN;				
-					break;
-
-				case DOWN:
-					ReportData->LY = STICK_MAX;				
-					break;
-
-				case RIGHT:
-					ReportData->LX = STICK_MAX;				
-					break;
-
-				case A:
-					ReportData->Button |= SWITCH_A;
-					break;
-
-				case B:
-					ReportData->Button |= SWITCH_B;
-					break;
-
-				case R:
-					ReportData->Button |= SWITCH_R;
-					break;
-
-				case THROW:
-					ReportData->LY = STICK_MIN;				
-					ReportData->Button |= SWITCH_R;
-					break;
-
-				case TRIGGERS:
-					ReportData->Button |= SWITCH_L | SWITCH_R;
-					break;
-
-				default:
-					ReportData->LX = STICK_CENTER;
-					ReportData->LY = STICK_CENTER;
-					ReportData->RX = STICK_CENTER;
-					ReportData->RY = STICK_CENTER;
-					ReportData->HAT = HAT_CENTER;
-					break;
-			}
-
-			duration_count++;
-
-			if (duration_count > step[bufindex].duration)
-			{
-				bufindex++;
-				duration_count = 0;				
-			}
-
-
-			if (bufindex > (int)( sizeof(step) / sizeof(step[0])) - 1)
-			{
-
-				// state = CLEANUP;
-
-				bufindex = 7;
-				duration_count = 0;
-
-				state = PROCESS;
-
-				ReportData->LX = STICK_CENTER;
-				ReportData->LY = STICK_CENTER;
-				ReportData->RX = STICK_CENTER;
-				ReportData->RY = STICK_CENTER;
-				ReportData->HAT = HAT_CENTER;
-
-
-				 state = DONE;
-//				state = BREATHE;
-
-			}
-}
-//			break;
-
-//		case CLEANUP:
-//			state = DONE;
-//			break;
-	//	case DONE:
-	//		#ifdef ALERT_WHEN_DONE
-  if(state == DONE){
-			portsval = ~portsval;
-			PORTD = portsval; //flash LED(s) and sound buzzer if attached
-			PORTB = portsval;
-			_delay_ms(250);
-      return;
+  if(packet.exit){
+    asis_wc = 0;
+    asis_done = true;
+    return;
   }
-	//		#endif
-	//		return;
-	//}
-	// // Inking
-	// if (state != SYNC_CONTROLLER && state != SYNC_POSITION)
-	// 	if (pgm_read_byte(&(image_data[(xpos / 8) + (ypos * 40)])) & 1 << (xpos % 8))
-	// 		ReportData->Button |= SWITCH_A;
+
+  asis_wc = packet.wait;
+
+  // Process ASIS packet
+  ReportData->Button = packet.button;
+  ReportData->HAT    = packet.hat;
+  ReportData->LX     = (packet.stick_x >> 8) & 0xFF;
+  ReportData->LY     = (packet.stick_y >> 8) & 0xFF;
+  ReportData->RX     = (packet.stick_x & 0xFF);
+  ReportData->RY     = (packet.stick_y & 0xFF);
+  ReportData->VendorSpec = 0;
 
 	// Prepare to echo this report
 	memcpy(&last_report, ReportData, sizeof(USB_JoystickReport_Input_t));
