@@ -1,4 +1,4 @@
-# Automatic Switch Input System (ASIS) (Updated 1/28/2020)
+# Automatic Switch Input System (ASIS) (Updated 1/29/2020)
 
 This is a framework that runs on Teensy 2.0++ that allows you to make automated controllers for the Switch
 
@@ -18,7 +18,7 @@ I cleaned up the code from Shiny Quagsire's printer and snowball thrower, and I 
 
 Let's get to it!
 
-## How to build the project
+## Step 1 - Build the Project
 First thing you will need is [LUFA](http://www.lufa-lib.org). Download the library, extract its content and rename the folder `LUFA` in the project root directory. 
 
 Once you have LUFA, follow one of the instructions below to setup the environment
@@ -28,8 +28,33 @@ Once you have LUFA, follow one of the instructions below to setup the environmen
  
 These instructions should contain all the links to the tools that you will need.
 
-## How to write scripts with ASIS framework
+## Step 2 - Write Scripts with ASIS Framework
 
-*To Be Continued*
+*To Be Completed*
+
+## Step 3 - Compile and Flash to Device
+
+#### Compile 
+1. Open `makefile`, Set the variable `ASIS_SCRIPT` to the name of your script (without .c)
+2. In your shell, execute `make`
+3. You can find the built binaries in `build/`
+
+#### Flash
+
+You want to flash this file: `build/asis_script_<YOUR SCRIPT NAME>.hex`
+
+If you are using a Teensy like me, you can find the tool and instructions on their [website](https://www.pjrc.com/teensy/loader.html). 
+
+## Other
+
+#### [Incomplete ASIS Documentation](/doc/ASIS-Complete-Documentation.md)
+
+#### Changelog
+
+ - (1/29/20) Added script compile time and run time overflow protection.
+ - (1/28/20) 
+   - Implemented exit and wait instructions
+   - Cleaned up code
+ - (1/21/20) Port the project from snowball-thrower
 
 
