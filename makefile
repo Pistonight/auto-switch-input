@@ -10,6 +10,7 @@
 # --------------------------------------
 
 # Run "make help" for target help.
+ASIS_SCRIPT  = my_test
 
 # Set the MCU accordingly to your device (e.g. at90usb1286 for a Teensy 2.0++, or atmega16u2 for an Arduino UNO R3)
 MCU          = at90usb1286
@@ -17,8 +18,8 @@ ARCH         = AVR8
 F_CPU        = 16000000
 F_USB        = $(F_CPU)
 OPTIMIZATION = s
-TARGET       = ./build/Joystick
-SRC          = ./src/Joystick.c ./src/Descriptors.c ./src/asis.c $(LUFA_SRC_USB)
+TARGET       = ./build/asis_script_$(ASIS_SCRIPT)
+SRC          = ./src/Joystick.c ./src/Descriptors.c ./src/asis.c ./src/$(ASIS_SCRIPT).c $(LUFA_SRC_USB)
 LUFA_PATH    = ./LUFA/LUFA
 CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -IConfig/
 LD_FLAGS     =

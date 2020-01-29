@@ -4,3 +4,4 @@ obj/
 build/
 script/
 .swp
+my*.c
