@@ -11,10 +11,10 @@
 //Duration for a button press
 #define ASIS_BUTTON_DURATION 5
 
-//Define LED indicator behavior
-#define ASIS_LED_FOR_BUTTON 0x0
-#define ASIS_LED_FOR_STICK  0x0
-#define ASIS_LED_FOR_D_PAD  0x0
-
+//The wait time for each cycle of wait
+//High value will allow you to wait precisely
+//Low value will save power when waiting for long time
+//Unit is millisecond
+#define ASIS_WAIT_PERIOD 250
 /*Script Config Section*/
 #endif

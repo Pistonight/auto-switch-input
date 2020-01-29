@@ -101,10 +101,12 @@ void asis_button(uint16_t, uint16_t);
 void asis_stick(uint16_t,uint16_t,uint16_t);
 //Load a d-pad instruction (hat,duration)
 void asis_d_pad(uint16_t,uint16_t);
-//Load a wait instruction (duration in second)
-void asis_wait(uint16_t);
-//Load a wait instruction (repeat, duration)
-void asis_wait_ms(uint16_t,uint16_t);
+//Load a wait instruction in seconds
+void asis_wait_s(uint16_t);
+//Load a wait instruction in milliseconds
+void asis_wait_ms(uint16_t);
+//Load a wait instruction (repeat, ms)
+void asis_wait(uint16_t,uint16_t);
 //Get current instruction index
 uint16_t asis_current(void);
 //Load a loop (repeat) instruction (location, repeat_time)

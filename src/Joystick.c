@@ -18,11 +18,10 @@ exception of Home and Capture. Descriptor modification allows us to unlock
 these buttons for our use.
 */
 #include "asis.h"
-#include "Command.c"
+#include "script_config.h"
 #include "Joystick.h"
 
 #define ECHOES 2
-#define ASIS_WAIT_PERIOD 1000
 bool asis_done = false;
 int led = 0;
 int echoes = 0;
@@ -42,13 +41,12 @@ int main(void) {
   //Call the global script setup
   //asis_sys_main();
   //Load some instructions
+  asis_wait_s(1);
   asis_click(ASIS_BUTTON_L + ASIS_BUTTON_R);
-  asis_wait(1);
+  asis_wait_ms(20);
   asis_click(ASIS_BUTTON_L + ASIS_BUTTON_R);
-  asis_wait(2);
+  asis_wait_s(10);
   asis_click(ASIS_BUTTON_A);
-  asis_wait(3);
-  asis_exit();
   
 
   //Prepare ASIS to run
@@ -113,9 +111,6 @@ void EVENT_USB_Device_ControlRequest(void) {
 // Process and deliver data from IN and OUT endpoints.
 void HID_Task(void) {
   //Update LED status
-  if(asis_wc>0){
-    led = 1;//USE LED to indicate waiting
-  }
   PORTD = led;
 	// If the device isn't connected and properly configured, we can't do anything here.
 	if (USB_DeviceState != DEVICE_STATE_Configured)
@@ -132,6 +127,7 @@ void HID_Task(void) {
 	Endpoint_SelectEndpoint(JOYSTICK_IN_EPADDR);
   // ASIS wait implemented here, so we are not busy waiting
 	if(asis_wc>0){
+    led = ~led;
     if(asis_wc<ASIS_WAIT_PERIOD){
       _delay_ms(ASIS_WAIT_PERIOD);
       asis_wc = 0;
@@ -139,11 +135,10 @@ void HID_Task(void) {
       _delay_ms(ASIS_WAIT_PERIOD);
       asis_wc -= ASIS_WAIT_PERIOD;
     }
-    led = 0;
   }
 
   if (Endpoint_IsINReady()) {//If we are not waiting, send data
-    if(!asis_done){
+    if(!asis_done && asis_wc == 0){
       // Create next report
 		  USB_JoystickReport_Input_t JoystickInputData;
       GetNextReport(&JoystickInputData);

@@ -123,10 +123,10 @@ void asis_sys_cycle(asis_packet_t* packet){
       break;
   }
   //Decrement duration counter
+  if(asis_dc>0)
+    asis_dc--;
   if(asis_dc==0){
     asis_sys_set_pc(asis_pc+1);//Go to next instruction
-  }else{
-    asis_dc--;
   }
 }
 
@@ -168,15 +168,19 @@ void asis_d_pad(uint16_t dpad,uint16_t duration){
   asis_lc++;
 }
 
-void asis_wait(uint16_t second){
+void asis_wait_ms(uint16_t millisecond){
+  asis_wait(1,millisecond);
+}
+
+void asis_wait_s(uint16_t second){
   if(second>1000){
-    asis_wait_ms(1000,second);
+    asis_wait(1000,second);
   }else{
-    asis_wait_ms(second,1000);
+    asis_wait(second,1000);
   }
 }
 
-void asis_wait_ms(uint16_t repeat,uint16_t ms_each_time){
+void asis_wait(uint16_t repeat,uint16_t ms_each_time){
   asis_insn_t* insn;
   if(asis_lc>=ASIS_MAX_INSTRUCTION)return;
   insn = asis_memory + asis_lc;
