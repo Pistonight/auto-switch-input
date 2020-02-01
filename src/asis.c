@@ -17,6 +17,8 @@ uint16_t asis_lc;
 uint16_t asis_sp;
 //Duration Counter;
 uint16_t asis_dc;
+//Starting PC
+uint16_t asis_ipc;
 //Overflow detection
 bool asis_compile_overflow;
 bool asis_runtime_overflow;
@@ -54,6 +56,7 @@ void asis_sys_init(void){
   asis_lc = 0;
   asis_sp = 0;
   asis_dc = 0;
+  asis_ipc = 0;
   int i;
   for(i=0;i<ASIS_MAX_INSTRUCTION;i++){
     asis_memory[i].operation=ASIS_INSN_EXIT;
@@ -67,7 +70,7 @@ void asis_sys_ovfl(bool* output){
 }
 
 void asis_sys_prepare(void){
-  asis_internal_set_pc(0);
+  asis_internal_set_pc(asis_ipc);
   asis_internal_check_runtime_overflow();
   asis_internal_check_compile_overflow();
 }
@@ -244,10 +247,13 @@ void asis_repeat(uint16_t jump_target,uint16_t repeat_time){
 }
 
 uint16_t asis_function(void (*function)(void)){
-  uint16_t function_location = asis_lc + 1;
+  if(asis_ipc!=asis_lc){
+    asis_compile_overflow = true;
+    return 60000;
+  }
+  uint16_t function_location = asis_lc;
   asis_insn_t* insn;
-  asis_internal_set_lc(asis_lc+1);
-  if(asis_internal_check_compile_overflow()) return 0;
+  if(asis_internal_check_compile_overflow()) return 60000;
   function();
   //return instruction
   insn = asis_memory + asis_lc;
@@ -257,14 +263,8 @@ uint16_t asis_function(void (*function)(void)){
   insn->arg1      = 0;
   insn->arg2      = 0;
   asis_internal_set_lc(asis_lc+1);
-  if(asis_internal_check_compile_overflow()) return 0;
-  //put a jump instruction at top
-  insn = asis_memory + function_location - 1;
-  insn->operation = ASIS_INSN_REPEAT;
-  insn->duration  = asis_lc;//Jump to after function
-  insn->button    = 0;
-  insn->arg1      = 1;//repeat total
-  insn->arg2      = 1;//repeat counter
+  asis_ipc = asis_lc;
+  if(asis_internal_check_compile_overflow()) return 60000;
   return function_location;
 }
 

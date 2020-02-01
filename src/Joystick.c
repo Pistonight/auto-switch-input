@@ -23,9 +23,12 @@ these buttons for our use.
 
 #define ECHOES 2
 #define LED_PORT 0x40 //Teensy2.0 uses PD6
+#define LED_BLINK_ON 100
+#define LED_BLINK_OFF 1000
 bool asis_done = false;
 bool asis_overflow = false;
 int echoes = 0;
+uint16_t wait_led_acc = 0;
 uint16_t asis_wc = 0;
 USB_JoystickReport_Input_t last_report;
 asis_packet_t packet;
@@ -98,8 +101,10 @@ void SetupHardware(void) {
 	clock_prescale_set(clock_div_1);
 	// We can then initialize our hardware and peripherals, including the USB stack.
   // LED Setup
+#ifdef LED_ENABLE
   DDRD  = LED_PORT;
   set_led(0);
+#endif
 
 	USB_Init();
 }
@@ -148,14 +153,22 @@ void HID_Task(void) {
 	Endpoint_SelectEndpoint(JOYSTICK_IN_EPADDR);
   // ASIS wait implemented here, so we are not busy waiting
   if(asis_wc>0){
-    PORTD = ~PORTD;//Flash LED regularly to indicate we are waiting
     if(asis_wc<ASIS_WAIT_PERIOD){
       _delay_ms(ASIS_WAIT_PERIOD);
+      wait_led_acc+=asis_wc;
       asis_wc = 0;
     }else{
       _delay_ms(ASIS_WAIT_PERIOD);
       asis_wc -= ASIS_WAIT_PERIOD;
+      wait_led_acc+=ASIS_WAIT_PERIOD;
     }
+#ifdef LED_ENABLE
+    int blink = PORTD ? LED_BLINK_ON : LED_BLINK_OFF;
+    if(wait_led_acc > blink){
+      wait_led_acc-=blink;
+      PORTD = ~PORTD;//Flash LED regularly to indicate we are waiting
+    }
+#endif
   }
 
   if (Endpoint_IsINReady()) {//If we are not waiting, send data
@@ -177,7 +190,6 @@ void HID_Task(void) {
     set_led(0);
     _delay_ms(3000);
   }
-
 }
 
 // Prepare the next report for the host.
@@ -218,6 +230,6 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 
 	// Prepare to echo this report
 	memcpy(&last_report, ReportData, sizeof(USB_JoystickReport_Input_t));
-	echoes = ECHOES;
+  echoes = ECHOES;
 
 }

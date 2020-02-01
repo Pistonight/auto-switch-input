@@ -4,19 +4,7 @@
 #ifndef _ASIS_H_
 #define _ASIS_H_
 
-#include <avr/io.h>
-#include <avr/wdt.h>
-#include <avr/power.h>
-#include <avr/interrupt.h>
-#include <avr/pgmspace.h>
-#include <string.h>
-
-#include <LUFA/Drivers/USB/USB.h>
-#include <LUFA/Drivers/Board/Joystick.h>
-#include <LUFA/Drivers/Board/LEDs.h>
-#include <LUFA/Drivers/Board/Buttons.h>
 #include <LUFA/Platform/Platform.h>
-
 
 //Buttons
 #define ASIS_BUTTON_NOTHING 0x0000

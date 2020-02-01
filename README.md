@@ -1,4 +1,4 @@
-# Automatic Switch Input System (ASIS) (Updated 1/29/2020)
+# Automatic Switch Input System (ASIS) (Updated 1/31/2020)
 
 This is a framework that runs on Teensy 2.0++ that allows you to make automated controllers for the Switch
 
@@ -29,6 +29,10 @@ Once you have LUFA, follow one of the instructions below to setup the environmen
 These instructions should contain all the links to the tools that you will need.
 
 ## Step 2 - Write Scripts with ASIS Framework
+In this step, I will show you how to compile an existing test script. Please refer to the [complete reference](/doc/ASIS-Complete-Documentation.md) for details of each function. You can also figure out what to do from the test scripts. If you are already familiar with programming, especially in C, this should be very easy.
+
+### Get Started
+Open `src/test_button.c`
 
 *To Be Completed*
 
@@ -38,6 +42,7 @@ These instructions should contain all the links to the tools that you will need.
 1. Open `makefile`, Set the variable `ASIS_SCRIPT` to the name of your script (without .c)
 2. In your shell, execute `make`
 3. You can find the built binaries in `build/`
+4. If you want to turn off the LED indication, comment out `ASIS_LED = -DLED_ENABLE` in the makefile. This will disable the LEDs when running the script. However, the LED will still flash when an overflow is detected.
 
 #### Flash
 
@@ -51,6 +56,7 @@ If you are using a Teensy like me, you can find the tool and instructions on the
 
 #### Changelog
 
+ - (1/31/20) Added utility library and test scripts for buttons and sticks
  - (1/29/20) Added script compile time and run time overflow protection.
  - (1/28/20) 
    - Implemented exit and wait instructions
