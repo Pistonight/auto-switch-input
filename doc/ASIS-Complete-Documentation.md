@@ -223,7 +223,10 @@ These functions are available in `asis_util.h`. Include this file in your script
  - Press the home button and wait for 2 seconds.
 
 ## LED Indication
- - 2 rapid blinks followed by 1 second off = buffer overflow when building the script
- - 2 rapid blinks followed by 1 second on then 1 second off = buffer overflow when running the script (stack or memory)
- - 1 rapid blink follwed by 1 second off = waiting
- - blink once followed by 3 second off = script finished successfully with an exit instruction
+| LED Sequence | Description |
+|--------------|-------------|
+|`x.x.........x.x.........`| Buffer overflow when building script
+|`x.x.xxxx....x.x.xxxx....`| Buffer overflow when executing the script (either stack or main buffer)
+|`x....x....x....x....x...`| Executing wait (Only if set LED_ENABLE in makefile)
+|`xx...........xx.........`| Script finished successfully (an exit instruction was executed)
+
