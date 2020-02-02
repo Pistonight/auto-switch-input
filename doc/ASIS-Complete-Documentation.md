@@ -124,22 +124,22 @@ These functions are used by the user to load instructions. For durations, 40 is 
 ###### void asis_repeat(uint16_t location, uint16_t times)
  - Load a repeat instruction to jump to `location` `times` times. For example, if you want to create a loop to execute 7 times, this is what to do:
 
-
+```
     uint16_t loop = asis_curloc(); //Get location of the start of the loop
     /* Loop code */
     asis_repeat(6,loop);// Note repeat 6 times, not 7 
                         // since 1 loop is already 
                         // executed before the first 
                         // time we execute repeat
-
+```
  - Similarly, the following loop execute 12 times:
 
-
+```
     uint16_t loop = asis_curloc();
     /* Loop code */
     asis_repeat(2, loop);//Inner loop 3 times
     asis_repeat(3, loop);//Outer loop 4 times
-
+```
 ###### void asis_jump(uint16_t location)
  - Load a jump instruction. This can be used to create an infinite loop like this:
 
