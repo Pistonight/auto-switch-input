@@ -8,6 +8,7 @@ void asis_sys_main(void){
   uasis_sync_from_controller_menu();
   asis_d_pad(ASIS_D_PAD_RIGHT,5);
   asis_wait_ms(500);
+  uint16_t test_loop = asis_curloc();
   asis_click(ASIS_BUTTON_A);
   asis_wait_s(1);
 
@@ -26,7 +27,6 @@ void asis_sys_main(void){
   asis_wait_ms(500);
   asis_click(ASIS_BUTTON_A);
   asis_wait_s(1);
-  uint16_t test_loop = asis_curloc();
   //Test Start here
   asis_click(ASIS_BUTTON_A);
   asis_wait_ms(100);
@@ -68,11 +68,20 @@ void asis_sys_main(void){
   asis_wait_ms(100);
   asis_d_pad(ASIS_D_PAD_UP_LEFT,5);
   asis_wait_ms(100);
-  asis_repeat(test_loop,3);
   //
   //Last test home and capture
-  asis_click(ASIS_BUTTON_CAPTURE);
   asis_wait_ms(500);
   uasis_home();
+  asis_stick(ASIS_STICK_CENTER,ASIS_STICK_L_MAX,5);
+  asis_wait_ms(100);
+  asis_stick(ASIS_STICK_L_MAX,ASIS_STICK_CENTER,5);
+  asis_wait_ms(100);
+  asis_stick(ASIS_STICK_L_MAX,ASIS_STICK_CENTER,5);
+  asis_wait_ms(100);
+  asis_stick(ASIS_STICK_L_MAX,ASIS_STICK_CENTER,5);
+  asis_wait_ms(100);
+  asis_stick(ASIS_STICK_L_MAX,ASIS_STICK_CENTER,5);
+  asis_wait_ms(100);
+  asis_jump(test_loop);//Infinite loop
   
 }

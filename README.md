@@ -1,4 +1,4 @@
-# Automatic Switch Input System (ASIS) (Updated 1/31/2020)
+# Automatic Switch Input System (ASIS) (Updated 2/2/2020)
 
 This is a framework that runs on Teensy 2.0++ that allows you to make automated controllers for the Switch
 
@@ -28,13 +28,36 @@ Once you have LUFA, follow one of the instructions below to setup the environmen
  
 These instructions should contain all the links to the tools that you will need.
 
-## Step 2 - Write Scripts with ASIS Framework
-In this step, I will show you how to compile an existing test script. Please refer to the [complete reference](/doc/ASIS-Complete-Documentation.md) for details of each function. You can also figure out what to do from the test scripts. If you are already familiar with programming, especially in C, this should be very easy.
+## Step 2 - Write Hello World with ASIS Framework
+In this step, I will show you how to write a script from scratch. However, it might be more helpful to just look at one of the `test_xxx.c` scripts. Please refer to the [complete reference](/doc/ASIS-Complete-Documentation.md) for details of each function. If you are already familiar with programming, especially in C, this should be very easy.
 
-### Get Started
-Open `src/test_button.c`
+ 1. Open `src/my_hello_world.c` and write the following
 
-*To Be Completed*
+
+    /*Include ASIS and ASIS utilities*/
+    #include "asis.h"
+    #include "asis_util.h"
+
+    /* Main Function */
+    void asis_sys_main(void){
+        //Next step goes here
+
+    }
+
+ 2. Now you have setup an ASIS script that does nothing. Inside `{  }` of the main function, write
+
+
+    uasis_sync_from_controller_menu();//This utility functions contains
+                                      //several instructions to sync
+                                      //the controller from menu
+    asis_d_pad(ASIS_D_PAD_RIGHT,5);//Press the D-pad right for 5 cycles
+    asis_wait_ms(500);             //Wait for 500 ms
+    asis_click(ASIS_BUTTON_A);     //Click the A button
+    asis_wait_s(1);                //Wait for 1 second
+    uasis_home();                  //Utility function to press home
+
+ 3. All done! This script sync the controller, then press right and A to go into settings, then press home to return to main menu! You can now follow the next steps to compile and run it.
+   - The name of this script is `my_hello_world`. If you used another name, it is the file name in `src` folder without `.c`
 
 ## Step 3 - Compile and Flash to Device
 
@@ -52,10 +75,11 @@ If you are using a Teensy like me, you can find the tool and instructions on the
 
 ## Other
 
-#### [Incomplete ASIS Documentation](/doc/ASIS-Complete-Documentation.md)
+#### [Almost Complete ASIS Documentation](/doc/ASIS-Complete-Documentation.md)
 
 #### Changelog
 
+ - (2/2/20) Documentation
  - (2/1/20)  
    - Test script for loop
    - Move configuration to makefile
