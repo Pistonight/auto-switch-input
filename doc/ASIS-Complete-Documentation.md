@@ -143,11 +143,11 @@ These functions are used by the user to load instructions. For durations, 40 is 
 ###### void asis_jump(uint16_t location)
  - Load a jump instruction. This can be used to create an infinite loop like this:
 
-
+```
     uint16_t inf_loop = asis_curloc();
     /* Loop */
     asis_jump(inf_loop);
-
+```
 ###### uint16_t asis_function(void (\*func)(void)); **WIP**
 ###### void asis_call(uint16_t) **WIP**
 ###### void asis_exit()
