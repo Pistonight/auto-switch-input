@@ -18,7 +18,6 @@ exception of Home and Capture. Descriptor modification allows us to unlock
 these buttons for our use.
 */
 #include "asis.h"
-#include "script_config.h"
 #include "Joystick.h"
 
 #define ECHOES 2
@@ -101,10 +100,8 @@ void SetupHardware(void) {
 	clock_prescale_set(clock_div_1);
 	// We can then initialize our hardware and peripherals, including the USB stack.
   // LED Setup
-#ifdef LED_ENABLE
   DDRD  = LED_PORT;
   set_led(0);
-#endif
 
 	USB_Init();
 }

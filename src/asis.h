@@ -97,8 +97,8 @@ void asis_wait_s(uint16_t);
 void asis_wait_ms(uint16_t);
 //Load a wait instruction (repeat, ms)
 void asis_wait(uint16_t,uint16_t);
-//Get current instruction index
-uint16_t asis_current(void);
+//Get current location
+uint16_t asis_curloc(void);
 //Load a loop (repeat) instruction (location, repeat_time)
 void asis_repeat(uint16_t,uint16_t);
 //Load a jump instruction

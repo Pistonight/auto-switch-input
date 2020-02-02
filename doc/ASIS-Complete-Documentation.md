@@ -3,8 +3,27 @@
 
 ## Constants
 
-#### ASIS Constants (see asis.h)
- - **ASIS_BUTTON_xxx** constants for buttons
+#### Button Const
+Button constants are for `asis_click()` and `asis_button()` Button press can be combined with add(+) or or(|)
+
+| Const Name | HEX | Description |
+|------------|-----|-------------|
+| ASIS_BUTTON_NOTHING | 0x0000 | No Button
+| ASIS_BUTTON_Y       | 0x0001 | Y Button
+| ASIS_BUTTON_B       | 0x0002 | B Button
+| ASIS_BUTTON_A       | 0x0004 | A Button
+| ASIS_BUTTON_X       | 0x0008 | X Button
+| ASIS_BUTTON_L       | 0x0010 | L Button
+| ASIS_BUTTON_R       | 0x0020 | R Button
+| ASIS_BUTTON_ZL      | 0x0040 | ZL Button
+| ASIS_BUTTON_ZR      | 0x0080 | ZR Button
+| ASIS_BUTTON_MINUS   | 0x0100 | MINUS Button
+| ASIS_BUTTON_PLUS    | 0x0200 | PLUS Button
+| ASIS_BUTTON_LCLICK  | 0x0400 | Left stick click
+| ASIS_BUTTON_RCLICK  | 0x0800 | Right stick click
+| ASIS_BUTTON_HOME    | 0x1000 | Home button. Using `uasis_home()` is recommended (see Util below)
+| ASIS_BUTTON_CAPTURE | 0x2000 | Capture button
+
  - **ASIS_D_PAD_xxx**  constants for D-pad (not left-joycon)
  - **ASIS_STICK_xxx**  constants for stick
    - MIN is up/left, MAX is down/right
@@ -19,7 +38,16 @@
    - *D_PAD* (7) A D-pad instruction
    - *JUMP* (8) unconditional jump
 
-#### Configuration Constants (see script_config.h)
+## Makefile Configuration
+| Variable | Description |
+|--------|---------|
+| ASIS_SCRIPT | Name of the script. If your script is located at `src/foo_bar.c`, the value should be set to `foo_bar` |
+| ASIS_LED | Set to `-DLED_ENABLE` to enable LED during script execution. The LED will flash when executing wait instructions. This is useful for debugging. Setting the value to empty will disable LED, but it will still flash when an error is detected or when the script finishes |
+| ASIS_MAX_INSTRUCTION | Size of the instruction buffer. Don't set this too big or you will overflow your device's memory. You can use loop instructions and function call instructions to optimize the size of your script
+| ASIS_MAX_FUNCTION | Size of the function section within the instruction buffer. Must be less than the instruction buffer size |
+| ASIS_MAX_STACK | Size of the call stack. For each call only the return value is stored, so this is equivalent to maximum nested call |
+| ASIS_BUTTON_DURATION | Duration for asis_click(). Default is 3
+| ASIS_WAIT_PERIOD | The wait period in milliseconds. You will only be able to wait for a length that is a multiple of this period. Lower value will allow more precised wait, while higher value may save some power during long waits. Default value is 100 |
 
 ## ASIS System Functions
 These functions are called by the library to setup ASIS framework. Users are not supposed to call them
@@ -37,6 +65,8 @@ Store the overflow status in the output parameter. There are two types of overfl
 ## ASIS User Functions
 
 ## ASIS Internal Functions
+
+## ASIS Util Functions
 
 ## LED indication
  - 2 rapid blinks followed by 1 second off = buffer overflow when building the script

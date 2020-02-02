@@ -1,5 +1,5 @@
 /*
- * Button Test
+ * Stick Test
  */
 #include "asis.h"
 #include "asis_util.h"

@@ -3,7 +3,6 @@
  */
 /*Include*/
 #include "asis.h"
-#include "script_config.h"
 
 //Instruction Memory
 asis_insn_t asis_memory[ASIS_MAX_INSTRUCTION];
@@ -17,14 +16,14 @@ uint16_t asis_lc;
 uint16_t asis_sp;
 //Duration Counter;
 uint16_t asis_dc;
-//Starting PC
-uint16_t asis_ipc;
+//Function load counter
+uint16_t asis_flc;
 //Overflow detection
 bool asis_compile_overflow;
 bool asis_runtime_overflow;
 
 bool asis_internal_check_compile_overflow(void){
-  if(asis_lc >= ASIS_MAX_INSTRUCTION){
+  if(asis_lc >= ASIS_MAX_INSTRUCTION || asis_flc >= ASIS_MAX_FUNCTION){
     asis_compile_overflow = true;
   }
   return asis_compile_overflow;
@@ -52,11 +51,14 @@ void asis_internal_set_lc(uint16_t new_lc){
 
 //Initialize
 void asis_sys_init(void){
+#if ASIS_MAX_FUNCTION>=ASIS_MAX_INSTRUCTION
+#error Function size must be smaller than instruction size
+#endif
   asis_pc = 0;
-  asis_lc = 0;
+  asis_lc = ASIS_MAX_FUNCTION;
   asis_sp = 0;
   asis_dc = 0;
-  asis_ipc = 0;
+  asis_flc = 0;
   int i;
   for(i=0;i<ASIS_MAX_INSTRUCTION;i++){
     asis_memory[i].operation=ASIS_INSN_EXIT;
@@ -70,7 +72,7 @@ void asis_sys_ovfl(bool* output){
 }
 
 void asis_sys_prepare(void){
-  asis_internal_set_pc(asis_ipc);
+  asis_internal_set_pc(ASIS_MAX_FUNCTION);
   asis_internal_check_runtime_overflow();
   asis_internal_check_compile_overflow();
 }
@@ -230,7 +232,7 @@ void asis_wait(uint16_t repeat,uint16_t ms_each_time){
   asis_internal_set_lc(asis_lc+1);
 }
 
-uint16_t asis_current(void){
+uint16_t asis_curloc(void){
   return asis_lc;
 }
 
@@ -247,23 +249,21 @@ void asis_repeat(uint16_t jump_target,uint16_t repeat_time){
 }
 
 uint16_t asis_function(void (*function)(void)){
-  if(asis_ipc!=asis_lc){
-    asis_compile_overflow = true;
-    return 60000;
-  }
-  uint16_t function_location = asis_lc;
+  uint16_t function_location = asis_flc;
+  uint16_t old_lc = asis_lc;
   asis_insn_t* insn;
   if(asis_internal_check_compile_overflow()) return 60000;
+  asis_lc = asis_flc;
   function();
+  asis_lc = old_lc;
   //return instruction
-  insn = asis_memory + asis_lc;
+  insn = asis_memory + asis_flc;
   insn->operation = ASIS_INSN_RET;
   insn->duration  = 0;
   insn->button    = 0;
   insn->arg1      = 0;
   insn->arg2      = 0;
-  asis_internal_set_lc(asis_lc+1);
-  asis_ipc = asis_lc;
+  asis_flc = asis_flc + 1;
   if(asis_internal_check_compile_overflow()) return 60000;
   return function_location;
 }
