@@ -33,7 +33,7 @@ In this step, I will show you how to write a script from scratch. However, it mi
 
  1. Open `src/my_hello_world.c` and write the following
 
-
+```
     /*Include ASIS and ASIS utilities*/
     #include "asis.h"
     #include "asis_util.h"
@@ -43,10 +43,10 @@ In this step, I will show you how to write a script from scratch. However, it mi
         //Next step goes here
 
     }
-
+```
  2. Now you have setup an ASIS script that does nothing. Inside `{  }` of the main function, write
 
-
+```
     uasis_sync_from_controller_menu();//This utility functions contains
                                       //several instructions to sync
                                       //the controller from menu
@@ -55,7 +55,7 @@ In this step, I will show you how to write a script from scratch. However, it mi
     asis_click(ASIS_BUTTON_A);     //Click the A button
     asis_wait_s(1);                //Wait for 1 second
     uasis_home();                  //Utility function to press home
-
+```
  3. All done! This script sync the controller, then press right and A to go into settings, then press home to return to main menu! You can now follow the next steps to compile and run it.
    - The name of this script is `my_hello_world`. If you used another name, it is the file name in `src` folder without `.c`
 
