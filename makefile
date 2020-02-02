@@ -12,7 +12,7 @@
 # Run "make help" for target help.
 #
 # ASIS configuration
-ASIS_SCRIPT  = test_loop
+ASIS_SCRIPT  = test_func
 ASIS_LED     = -DLED_ENABLE      # Comment out to disable LED while running
 ASIS_MAX_INSTRUCTION = 600       # Max instruction buffer size (including function)
 ASIS_MAX_FUNCTION    = 200       # Max function section size

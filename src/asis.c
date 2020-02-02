@@ -248,14 +248,15 @@ void asis_repeat(uint16_t jump_target,uint16_t repeat_time){
   asis_internal_set_lc(asis_lc+1);
 }
 
-uint16_t asis_function(void (*function)(void)){
+uint16_t asis_function(void (*function)(void*),void* args){
   uint16_t function_location = asis_flc;
   uint16_t old_lc = asis_lc;
   asis_insn_t* insn;
   if(asis_internal_check_compile_overflow()) return 60000;
   asis_lc = asis_flc;
-  function();
-  asis_lc = old_lc;
+  function(args);
+  asis_flc = asis_lc;
+  if(asis_internal_check_compile_overflow()) return 60000;
   //return instruction
   insn = asis_memory + asis_flc;
   insn->operation = ASIS_INSN_RET;
@@ -264,6 +265,7 @@ uint16_t asis_function(void (*function)(void)){
   insn->arg1      = 0;
   insn->arg2      = 0;
   asis_flc = asis_flc + 1;
+  asis_lc = old_lc;
   if(asis_internal_check_compile_overflow()) return 60000;
   return function_location;
 }

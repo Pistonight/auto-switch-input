@@ -103,8 +103,8 @@ uint16_t asis_curloc(void);
 void asis_repeat(uint16_t,uint16_t);
 //Load a jump instruction
 void asis_jump(uint16_t);
-//Load a function
-uint16_t asis_function(void (*func)(void));
+//Load a function (func, args)
+uint16_t asis_function(void (*func)(void*),void*);
 //Load a function call instruction
 void asis_call(uint16_t);
 //Load an exit instruction

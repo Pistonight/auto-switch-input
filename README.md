@@ -1,10 +1,6 @@
-# Automatic Switch Input System (ASIS) (Updated 2/2/2020)
+# Automatic Switch Input System (ASIS)
 
 This is a framework that runs on Teensy 2.0++ that allows you to make automated controllers for the Switch
-
-# This project is still under development
-
-I will post the latest update as well as setup instructions once I get to it!
 
 ## Credit 
 I put this section up front because I really appreciated all the work people had put before me to make this possible. This project is inspired by and adapted from [Automatically throws snowballs in The Legend of Zelda: Breath of the Wild by emulating a controller on a Teensy++ v2.0](https://github.com/bertrandom/snowball-thrower). 
@@ -75,19 +71,7 @@ If you are using a Teensy like me, you can find the tool and instructions on the
 
 ## Other
 
-#### [Almost Complete ASIS Documentation](/doc/ASIS-Complete-Documentation.md)
+#### [Complete ASIS Documentation](/doc/ASIS-Complete-Documentation.md)
 
-#### Changelog
-
- - (2/2/20) Documentation
- - (2/1/20)  
-   - Test script for loop
-   - Move configuration to makefile
- - (1/31/20) Added utility library and test scripts for buttons and sticks
- - (1/29/20) Added script compile time and run time overflow protection.
- - (1/28/20) 
-   - Implemented exit and wait instructions
-   - Cleaned up code
- - (1/21/20) Port the project from snowball-thrower
 
 
