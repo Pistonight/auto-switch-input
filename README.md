@@ -56,6 +56,9 @@ If you are using a Teensy like me, you can find the tool and instructions on the
 
 #### Changelog
 
+ - (2/1/20)  
+   - Test script for loop
+   - Move configuration to makefile
  - (1/31/20) Added utility library and test scripts for buttons and sticks
  - (1/29/20) Added script compile time and run time overflow protection.
  - (1/28/20) 
