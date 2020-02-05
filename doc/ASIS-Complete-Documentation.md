@@ -229,5 +229,5 @@ These functions are available in `asis_util.h`. Include this file in your script
 |`x.x.........x.x.........`| Buffer overflow when building script
 |`x.x.xxxx....x.x.xxxx....`| Buffer overflow when executing the script (either stack or main buffer)
 |`x....x....x....x....x...`| Executing wait (Only if set LED_ENABLE in makefile)
-|`xx...........xx.........`| Script finished successfully (an exit instruction was executed)
+|`xxxx....xxxx....xxxx....`| Script finished successfully (an exit instruction was executed)
 
