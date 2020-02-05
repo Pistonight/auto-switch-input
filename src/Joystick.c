@@ -62,7 +62,7 @@ int main(void) {
       _delay_ms(1000);
     }
   }
-	while (1)
+	while (!asis_done)
 	{
     if(asis_overflow){
       //We indicate a run time overflow by flashing LED 3 times
@@ -84,9 +84,23 @@ int main(void) {
     
 		// We need to run our task to process and deliver data for our IN and OUT endpoints.
 		HID_Task();
+		if(asis_done)break;
 		// We also need to run the main USB management task.
 		USB_USBTask();
 	}
+	//What happens if the program end?
+  set_led(1);
+  _delay_ms(1000);
+  set_led(0);
+  _delay_ms(1000);
+  set_led(1);
+  _delay_ms(1000);
+  set_led(0);
+  _delay_ms(1000);
+  set_led(1);
+  _delay_ms(1000);
+  set_led(0);
+  _delay_ms(1000);
 }
 
 
@@ -181,12 +195,12 @@ void HID_Task(void) {
 	}
 
   //If we are done, perform LED blinking task to indicate
-  if(asis_done && !asis_overflow){
-    set_led(1);
-    _delay_ms(250);
-    set_led(0);
-    _delay_ms(3000);
-  }
+ // if(asis_done && !asis_overflow){
+  //  set_led(1);
+  //  _delay_ms(250);
+  //  set_led(0);
+  //  _delay_ms(3000);
+ // }
 }
 
 // Prepare the next report for the host.

@@ -197,6 +197,7 @@ These functions are used by the user to load instructions. For durations, 40 is 
 
 ###### void asis_exit()
  - Load an exit instruction to terminate the script. The buffer will be initially filled with exit instructions, so usually you don't need to use this. However it is usefull if you are debugging your script and want it to exit in the middle of somewhere.
+ - However, I discovered problems with the switch re-booting the board, causing the script to start again. So I recommend an infinite loop to terminate the script.
 
 ## ASIS Internal Functions
 These functions are internal to ASIS. Do not use these outside of asis.c
